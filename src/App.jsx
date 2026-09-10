@@ -1,7 +1,8 @@
 import React from 'react'
+import CadastroTarefas from "./components/CadastroTarefas"
 
-export const App = () => {
+export default function App() {
   return (
-    <div>App</div>
+    <CadastroTarefas />
   )
 }
