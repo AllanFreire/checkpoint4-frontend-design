@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useEffect } from "react";
 import { PRIORIDADES } from "../prioridades";
 
 function formatarData(iso) {
@@ -24,6 +25,34 @@ export default function CadastroTarefas() {
         descricao: "",
         prioridade: "BAIXA",
     });
+
+    const [carregado, setCarregado] = useState(false);
+
+    useEffect(() => {
+        try {
+            const salvo = localStorage.getItem("cadastro-tarefas:tarefas");
+            if (salvo) {
+                const dados = JSON.parse(salvo);
+                if (Array.isArray(dados)) {
+                    setTarefas(dados);
+                    const maiorId = dados.reduce((max, t) => Math.max(max, t.id), 0);
+                    proximoId = maiorId + 1;
+                }
+            }
+        } catch (erro) {
+            console.error("Não foi possível carregar as tarefas salvas:", erro);
+        }
+        setCarregado(true);
+    }, []);
+
+    useEffect(() => {
+        if (!carregado) return;
+        try {
+            localStorage.setItem("cadastro-tarefas:tarefas", JSON.stringify(tarefas));
+        } catch (erro) {
+            console.error("Não foi possível salvar as tarefas:", erro);
+        }
+    }, [tarefas, carregado]);
 
     function handleSubmit(e) {
         e.preventDefault();
