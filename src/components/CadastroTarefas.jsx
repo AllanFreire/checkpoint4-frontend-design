@@ -17,6 +17,7 @@ let proximoId = 1;
 export default function CadastroTarefas() {
     const [tarefas, setTarefas] = useState([]);
     const [erro, setErro] = useState("");
+    const [filtro, setFiltro] = useState("TODAS");
     const [form, setForm] = useState({
         nome: "",
         data: "",
@@ -49,6 +50,12 @@ export default function CadastroTarefas() {
     function excluirTarefa(id) {
         setTarefas((prev) => prev.filter((t) => t.id !== id));
     }
+
+    const tarefasFiltradas = tarefas.filter((tarefa) => {
+        if (filtro === "PENDENTES") return !tarefa.concluida;
+        if (filtro === "CONCLUIDAS") return tarefa.concluida;
+        return true;
+    });
 
     return (
         <div className="min-h-screen bg-stone-50 px-5 py-12 text-stone-800">
@@ -143,13 +150,38 @@ export default function CadastroTarefas() {
                     </button>
                 </form>
 
-                {tarefas.length === 0 ? (
+                <div className="mb-5 flex flex-wrap items-center gap-2">
+                    <span className="mr-1 text-sm font-semibold text-stone-500">Mostrar:</span>
+                    <div className="flex flex-wrap gap-2">
+                        {[
+                            { valor: "TODAS", label: "Todas" },
+                            { valor: "PENDENTES", label: "Pendentes" },
+                            { valor: "CONCLUIDAS", label: "Conclu\u00eddas" },
+                        ].map(({ valor, label }) => (
+                            <button
+                                type="button"
+                                key={valor}
+                                onClick={() => setFiltro(valor)}
+                                aria-pressed={filtro === valor}
+                                className={
+                                    filtro === valor
+                                        ? "rounded-lg bg-stone-800 px-3 py-1.5 text-sm font-semibold text-stone-50"
+                                        : "rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-sm font-semibold text-stone-500 hover:border-stone-400"
+                                }
+                            >
+                                {label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {tarefasFiltradas.length === 0 ? (
                     <div className="rounded-xl border border-dashed border-stone-300 py-10 text-center text-stone-400">
-                        Nenhuma tarefa cadastrada ainda.
+                        {tarefas.length === 0 ? "Nenhuma tarefa cadastrada ainda." : "Nenhuma tarefa encontrada para este filtro."}
                     </div>
                 ) : (
                     <div className="flex flex-col gap-2.5">
-                        {tarefas.map((t) => {
+                        {tarefasFiltradas.map((t) => {
                             const cor = corPrioridade(t.prioridade);
                             const label = PRIORIDADES.find((p) => p.valor === t.prioridade)?.label ?? t.prioridade;
                             return (
